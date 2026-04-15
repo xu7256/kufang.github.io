@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>智汇库房管理系统 | 严谨跳转 · 无叠加 · 高端质感</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f4fa 0%, #e3e9f2 100%);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            padding: 24px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* 高端玻璃效果 */
+        .toolbar, .global-search-bar, .card, .tabs {
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(2px);
+            border-radius: 32px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+
+        .toolbar {
+            padding: 10px 24px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .mode-badge {
+            padding: 6px 20px;
+            border-radius: 40px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        .mode-badge.readonly { background: #fef3c7; color: #b45309; border-left: 3px solid #f59e0b; }
+        .mode-badge.edit { background: #dcfce7; color: #15803d; border-left: 3px solid #22c55e; }
+
+        .btn {
+            padding: 8px 22px;
+            border-radius: 40px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .btn-primary { background: #1e3a8a; color: white; box-shadow: 0 2px 6px rgba(30,58,138,0.15); }
+        .btn-primary:hover { background: #1e40af; transform: translateY(-1px); }
+        .btn-secondary { background: #475569; color: white; }
+        .btn-outline { background: transparent; border: 1px solid #3b82f6; color: #1e3a8a; }
+        .btn-outline:hover { background: #eff6ff; }
+        .btn-danger { background: #b91c1c; color: white; }
+        .btn-success { background: #0f3b2c; color: white; }
+        .btn-sm { padding: 5px 14px; font-size: 12px; }
+
+        /* 紧凑搜索条 */
+        .global-search-bar {
+            padding: 8px 16px 8px 20px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .search-input-wrapper {
+            flex: 2;
+            min-width: 220px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #f8fafc;
+            border-radius: 48px;
+            padding: 4px 12px;
+        }
+        .search-input-wrapper input {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 10px 4px;
+            font-size: 14px;
+            outline: none;
+        }
+        .global-search-bar button {
+            white-space: nowrap;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            padding: 6px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+        .tab-btn {
+            padding: 10px 28px;
+            border-radius: 50px;
+            background: transparent;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+            font-size: 14px;
+            color: #334155;
+        }
+        .tab-btn.active {
+            background: #1e3a8a;
+            color: white;
+            box-shadow: 0 4px 12px rgba(30,58,138,0.25);
+        }
+
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        .card {
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            margin-bottom: 22px;
+            padding-left: 16px;
+            border-left: 5px solid #1e3a8a;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            color: #0f172a;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+        .field label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #475569;
+            margin-bottom: 6px;
+            display: block;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 20px;
+            font-size: 14px;
+            background: white;
+            transition: 0.2s;
+        }
+        input:focus, select:focus {
+            border-color: #1e3a8a;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(30,58,138,0.1);
+        }
+
+        /* 库房网格 */
+        .warehouse-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 8px;
+        }
+        .warehouse-card {
+            background: linear-gradient(125deg, #fffaf0 0%, #fff7ed 100%);
+            border-radius: 28px;
+            padding: 20px;
+            border: 1px solid #fed7aa;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .warehouse-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 28px -12px rgba(0, 0, 0, 0.12);
+            border-color: #fbbf24;
+        }
+        .warehouse-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+            color: #b45309;
+        }
+
+        /* 物品网格 */
+        .items-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 16px;
+        }
+        .item-card {
+            background: white;
+            border-radius: 24px;
+            padding: 18px;
+            border: 1px solid #eef2ff;
+            transition: 0.2s;
+        }
+        .item-card:hover {
+            box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        .item-stock {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 12px 0;
+        }
+        .badge-warehouse {
+            background: #e0e7ff;
+            color: #1e3a8a;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .search-bar {
+            background: #f8fafc;
+            border-radius: 48px;
+            padding: 8px 16px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .search-bar input {
+            flex: 1;
+            border-radius: 40px;
+        }
+        .table-wrapper {
+            max-height: 480px;
+            overflow-y: auto;
+            border-radius: 24px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th {
+            background: #f1f5f9;
+            padding: 14px 10px;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+        }
+        td {
+            padding: 12px 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        .search-result-tip {
+            background: #dbeafe;
+            border-radius: 40px;
+            padding: 10px 18px;
+            margin-bottom: 20px;
+            font-weight: 500;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .highlight {
+            background: #fef9c3 !important;
+            border-left: 4px solid #eab308 !important;
+        }
+        .item-meta {
+            font-size: 12px;
+            color: #475569;
+            margin: 6px 0;
+        }
+        .item-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+        hr {
+            margin: 16px 0;
+            border-color: #e2e8f0;
+        }
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- 工具栏 -->
+    <div class="toolbar">
+        <span class="mode-badge readonly" id="modeBadge">🔒 浏览模式</span>
+        <div style="display: flex; gap: 12px;">
+            <button class="btn btn-primary" id="unlockBtn">🔓 解锁编辑</button>
+            <button class="btn btn-secondary" id="changePwdBtn">⚙️ 修改密码</button>
+        </div>
+    </div>
+
+    <!-- 全局搜索 (紧凑、独立) -->
+    <div class="global-search-bar">
+        <div class="search-input-wrapper">
+            <span>🔍</span>
+            <input type="text" id="globalQuickSearchInput" placeholder="搜索物品名称，自动跳转并定位">
+        </div>
+        <button class="btn btn-primary btn-sm" id="globalQuickSearchBtn">搜索并跳转</button>
+        <button class="btn btn-outline btn-sm" id="clearSearchHighlightBtn">清除高亮</button>
+    </div>
+
+    <!-- 选项卡 -->
+    <div class="tabs">
+        <button class="tab-btn active" data-tab="warehouseTab">🏚️ 库房管理</button>
+        <button class="tab-btn" data-tab="itemTab">📦 物品管理</button>
+        <button class="tab-btn" data-tab="transactionTab">🔄 出入库操作</button>
+        <button class="tab-btn" data-tab="historyTab">📜 历史记录</button>
+    </div>
+
+    <!-- 库房管理页 -->
+    <div id="warehouseTab" class="tab-pane active">
+        <div class="card">
+            <div class="card-title">🏪 库房管理 · 点击卡片跳转到物品管理并自动筛选</div>
+            <div class="form-grid">
+                <div class="field"><label>库房名称</label><input type="text" id="warehouseName" placeholder="例: 智能制造中心"></div>
+                <div class="field"><label>库房位置</label><input type="text" id="warehouseLocation" placeholder="例: A栋1F"></div>
+            </div>
+            <div style="display: flex; gap: 12px; margin-bottom: 24px;">
+                <button class="btn btn-primary" id="addWarehouseBtn">➕ 添加库房</button>
+                <button class="btn btn-outline" id="resetWarehouseBtn">重置</button>
+            </div>
+            <div id="warehouseList" class="warehouse-grid"></div>
+        </div>
+    </div>
+
+    <!-- 物品管理页 -->
+    <div id="itemTab" class="tab-pane">
+        <div class="card">
+            <div class="card-title">📦 物品管理 · 添加新物品</div>
+            <div class="form-grid">
+                <div class="field"><label>物品名称</label><input type="text" id="itemName" placeholder="例: 工业电钻"></div>
+                <div class="field"><label>所属库房</label><select id="itemWarehouseId"></select></div>
+                <div class="field"><label>初始库存</label><input type="number" id="itemStock" value="0"></div>
+            </div>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button class="btn btn-primary" id="addItemBtn">➕ 添加物品</button>
+                <button class="btn btn-secondary" id="resetFormBtn">重置表单</button>
+                <button class="btn btn-outline" id="exportItemsBtn">📎 导出物品CSV</button>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-title">
+                <span>🗂️ 当前物品清单</span>
+                <select id="filterWarehouseSelect" style="width: auto; padding: 6px 12px;">
+                    <option value="all">📌 全部库房</option>
+                </select>
+            </div>
+            <div class="search-bar">
+                <input type="text" id="globalItemSearchInput" placeholder="🔍 按物品名称过滤...">
+                <button class="btn btn-primary btn-sm" id="globalSearchBtn">搜索</button>
+                <button class="btn btn-outline btn-sm" id="globalResetSearchBtn">重置</button>
+            </div>
+            <div id="searchResultTip" class="search-result-tip" style="display: none;"></div>
+            <div id="itemsList" class="items-grid"></div>
+        </div>
+    </div>
+
+    <!-- 出入库操作页 -->
+    <div id="transactionTab" class="tab-pane">
+        <div class="card">
+            <div class="card-title">🔄 出入库 · 修改库存</div>
+            <div class="form-grid">
+                <div class="field"><label>选择物品</label><select id="selectedItemId"></select></div>
+                <div class="field"><label>操作类型</label><select id="transType"><option value="in">📥 入库</option><option value="out">📤 出库</option><option value="modify">✏️ 手动修改</option></select></div>
+                <div class="field"><label>数量</label><input type="number" id="quantityNum" value="1"></div>
+                <div class="field"><label>操作时间 (可选)</label><input type="datetime-local" id="operationTime"></div>
+                <div class="field"><label>操作人 *</label><input type="text" id="operatorName" placeholder="姓名"></div>
+                <div class="field"><label>出入库人</label><input type="text" id="transactorName" placeholder="领用/供应商"></div>
+                <div class="field"><label>备注</label><input type="text" id="reasonText" placeholder="原因"></div>
+            </div>
+            <button class="btn btn-primary" id="executeBtn">✅ 执行操作并记录</button>
+        </div>
+    </div>
+
+    <!-- 历史记录页 + 导出 -->
+    <div id="historyTab" class="tab-pane">
+        <div class="card">
+            <div class="card-title">
+                <span>📜 完整库存变动历史</span>
+                <button class="btn btn-success btn-sm" id="exportHistoryBtn">📎 导出历史记录 (CSV)</button>
+            </div>
+            <div class="table-wrapper">
+                <table style="width:100%">
+                    <thead>
+                        <tr><th>时间</th><th>库房</th><th>物品</th><th>类型</th><th>数量变动</th><th>操作后库存</th><th>操作人</th><th>出入库人</th><th>原因</th></tr>
+                    </thead>
+                    <tbody id="historyBody"><tr><td colspan="9" style="text-align:center;">暂无记录</td></tr></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ==================== 密码与权限 ====================
+    let PASSWORD = localStorage.getItem('warehouse_password');
+    if (!PASSWORD) { PASSWORD = 'admin123'; localStorage.setItem('warehouse_password', PASSWORD); }
+    let isAuthorized = false;
+
+    // ==================== 数据结构 ====================
+    let warehouses = [];
+    let items = [];
+    let logs = [];
+    let nextWarehouseId = 1, nextItemId = 1, nextLogId = 1;
+
+    // UI 独立状态 (无叠加)
+    let highlightItemId = null;
+    let forcedWarehouseFilter = null;      // 从库房卡片跳转时强制筛选
+    let globalItemSearchKeyword = '';
+
+    // ==================== 初始化默认数据 ====================
+    function initDefaultData() {
+        if (warehouses.length === 0) {
+            warehouses = [
+                { id: 1, name: "智能制造中心", location: "A栋1F 智能区" },
+                { id: 2, name: "电子精密库", location: "B栋2F 恒温区" }
+            ];
+            nextWarehouseId = 3;
+        }
+        if (items.length === 0) {
+            const now = new Date().toISOString();
+            items = [
+                { id: 1, name: "博世冲击钻", warehouseId: 1, stock: 23, lastModified: now, lastModifiedBy: "王主管" },
+                { id: 2, name: "世达螺丝刀套装", warehouseId: 1, stock: 56, lastModified: now, lastModifiedBy: "李仓管" },
+                { id: 3, name: "STM32开发板", warehouseId: 2, stock: 120, lastModified: now, lastModifiedBy: "电子专员" },
+                { id: 4, name: "高频电烙铁", warehouseId: 2, stock: 35, lastModified: now, lastModifiedBy: "张工" }
+            ];
+            nextItemId = 5;
+        }
+        if (logs.length === 0) {
+            const now = new Date();
+            logs = [
+                { id: 1, itemId: 1, itemName: "博世冲击钻", warehouseId: 1, warehouseName: "智能制造中心", type: "入库", delta: 10, newStock: 10, operator: "张采购", transactor: "供应商A", reason: "采购入库", time: new Date(now - 86400000).toISOString() },
+                { id: 2, itemId: 1, itemName: "博世冲击钻", warehouseId: 1, warehouseName: "智能制造中心", type: "出库", delta: -2, newStock: 8, operator: "李主管", transactor: "施工队", reason: "领用", time: new Date(now - 43200000).toISOString() },
+                { id: 3, itemId: 2, itemName: "世达螺丝刀套装", warehouseId: 1, warehouseName: "智能制造中心", type: "入库", delta: 30, newStock: 30, operator: "王仓管", transactor: "京东", reason: "补货", time: new Date(now - 172800000).toISOString() },
+                { id: 4, itemId: 2, itemName: "世达螺丝刀套装", warehouseId: 1, warehouseName: "智能制造中心", type: "手动修改", delta: 26, newStock: 56, operator: "财务", transactor: "", reason: "盘点调整", time: new Date().toISOString() },
+                { id: 5, itemId: 3, itemName: "STM32开发板", warehouseId: 2, warehouseName: "电子精密库", type: "入库", delta: 120, newStock: 120, operator: "系统", transactor: "采购", reason: "初始库存", time: new Date().toISOString() }
+            ];
+            nextLogId = 6;
+            const i1 = items.find(i=>i.id===1); if(i1) i1.stock = 8;
+            const i2 = items.find(i=>i.id===2); if(i2) i2.stock = 56;
+        }
+        saveAll();
+    }
+
+    function saveAll() {
+        localStorage.setItem('warehouse_multi_warehouses', JSON.stringify(warehouses));
+        localStorage.setItem('warehouse_multi_items', JSON.stringify(items));
+        localStorage.setItem('warehouse_multi_logs', JSON.stringify(logs));
+        localStorage.setItem('warehouse_multi_nextWarehouseId', nextWarehouseId);
+        localStorage.setItem('warehouse_multi_nextItemId', nextItemId);
+        localStorage.setItem('warehouse_multi_nextLogId', nextLogId);
+    }
+
+    function loadData() {
+        const storedWh = localStorage.getItem('warehouse_multi_warehouses');
+        const storedItems = localStorage.getItem('warehouse_multi_items');
+        const storedLogs = localStorage.getItem('warehouse_multi_logs');
+        const storedNextWh = localStorage.getItem('warehouse_multi_nextWarehouseId');
+        const storedNextItem = localStorage.getItem('warehouse_multi_nextItemId');
+        const storedNextLog = localStorage.getItem('warehouse_multi_nextLogId');
+        if (storedWh) warehouses = JSON.parse(storedWh);
+        if (storedItems) items = JSON.parse(storedItems);
+        if (storedLogs) logs = JSON.parse(storedLogs);
+        if (storedNextWh) nextWarehouseId = parseInt(storedNextWh);
+        if (storedNextItem) nextItemId = parseInt(storedNextItem);
+        if (storedNextLog) nextLogId = parseInt(storedNextLog);
+        if (warehouses.length === 0 || items.length === 0) initDefaultData();
+        else {
+            if (warehouses.length && items.some(i => i.warehouseId === undefined)) {
+                const defaultWhId = warehouses[0]?.id || 1;
+                items.forEach(i => { if (i.warehouseId === undefined) i.warehouseId = defaultWhId; });
+                saveAll();
+            }
+        }
+        renderAll();
+    }
+
+    function formatLocalDateTime(isoString) {
+        if (!isoString) return '-';
+        try {
+            const d = new Date(isoString);
+            if (isNaN(d.getTime())) return isoString;
+            return `${d.getFullYear()}-${(d.getMonth()+1).toString().padStart(2,'0')}-${d.getDate().toString().padStart(2,'0')} ${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}:${d.getSeconds().toString().padStart(2,'0')}`;
+        } catch(e) { return isoString; }
+    }
+
+    // 全局搜索：跳转到物品管理页，筛选库房并高亮物品
+    function globalSearchAndJump() {
+        const keyword = document.getElementById('globalQuickSearchInput').value.trim();
+        if (!keyword) { alert("请输入物品名称"); return; }
+        const matched = items.find(i => i.name.toLowerCase().includes(keyword.toLowerCase()));
+        if (!matched) { alert(`未找到包含“${keyword}”的物品`); return; }
+        const targetWh = warehouses.find(w => w.id === matched.warehouseId);
+        if (!targetWh) return;
+        forcedWarehouseFilter = matched.warehouseId;
+        globalItemSearchKeyword = '';
+        highlightItemId = matched.id;
+        document.getElementById('globalItemSearchInput').value = '';
+        const filterSelect = document.getElementById('filterWarehouseSelect');
+        if (filterSelect) filterSelect.value = matched.warehouseId.toString();
+        activateTab('itemTab');
+        renderItemsInItemTab();
+        const tipDiv = document.getElementById('searchResultTip');
+        tipDiv.style.display = 'flex';
+        tipDiv.innerHTML = `<span>✅ 已定位到「${escapeHtml(targetWh.name)}」库房 → 物品「${escapeHtml(matched.name)}」库存: ${matched.stock}</span>
+                            <button class="btn btn-outline btn-sm" id="clearHighlightOnlyBtn">清除高亮</button>`;
+        const clearBtn = document.getElementById('clearHighlightOnlyBtn');
+        if (clearBtn) clearBtn.onclick = () => { highlightItemId = null; renderItemsInItemTab(); tipDiv.style.display = 'none'; };
+        setTimeout(() => {
+            const el = document.querySelector(`.item-card[data-item-id='${matched.id}']`);
+            if (el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.classList.add('highlight'); setTimeout(() => el.classList.remove('highlight'), 2000); }
+        }, 150);
+    }
+
+    // 物品管理页面渲染（独立完整）
+    function renderItemsInItemTab() {
+        let filterVal = document.getElementById('filterWarehouseSelect')?.value || 'all';
+        if (forcedWarehouseFilter !== null) filterVal = forcedWarehouseFilter.toString();
+        let filtered = [...items];
+        if (filterVal !== 'all') filtered = filtered.filter(i => i.warehouseId == filterVal);
+        if (globalItemSearchKeyword.trim()) filtered = filtered.filter(i => i.name.toLowerCase().includes(globalItemSearchKeyword.toLowerCase()));
+        const container = document.getElementById('itemsList');
+        if (filtered.length === 0) { container.innerHTML = '<div style="text-align:center;padding:40px;">✨ 暂无物品</div>'; return; }
+        container.innerHTML = filtered.map(item => {
+            const wh = warehouses.find(w => w.id === item.warehouseId) || { name: '?', location: '' };
+            const isHighlight = (highlightItemId === item.id);
+            return `<div class="item-card" data-item-id="${item.id}" style="${isHighlight ? 'background:#fef9c3;border-left:4px solid #eab308;' : ''}">
+                        <span class="badge-warehouse">🏠 ${escapeHtml(wh.name)} · ${escapeHtml(wh.location || '')}</span>
+                        <div class="item-name"><strong>${escapeHtml(item.name)}</strong> <span style="font-size:11px;">#${item.id}</span></div>
+                        <div class="item-stock">📦 ${item.stock}</div>
+                        <div class="item-meta">🕒 ${formatLocalDateTime(item.lastModified)}  ✏️ ${escapeHtml(item.lastModifiedBy||'-')}</div>
+                        <div class="item-buttons">
+                            <button class="btn btn-outline btn-sm quick-in" data-id="${item.id}" ${!isAuthorized ? 'disabled' : ''}>入库 +</button>
+                            <button class="btn btn-outline btn-sm quick-out" data-id="${item.id}" ${!isAuthorized ? 'disabled' : ''}>出库 -</button>
+                            <button class="btn btn-secondary btn-sm quick-modify" data-id="${item.id}" ${!isAuthorized ? 'disabled' : ''}>修改库存</button>
+                            <button class="btn btn-danger btn-sm quick-delete" data-id="${item.id}" ${!isAuthorized ? 'disabled' : ''}>删除</button>
+                        </div>
+                    </div>`;
+        }).join('');
+        if (isAuthorized) {
+            document.querySelectorAll('.quick-in').forEach(btn => btn.onclick = () => jumpToTransaction(parseInt(btn.dataset.id), 'in'));
+            document.querySelectorAll('.quick-out').forEach(btn => btn.onclick = () => jumpToTransaction(parseInt(btn.dataset.id), 'out'));
+            document.querySelectorAll('.quick-modify').forEach(btn => btn.onclick = () => jumpToTransaction(parseInt(btn.dataset.id), 'modify'));
+            document.querySelectorAll('.quick-delete').forEach(btn => btn.onclick = () => { if(confirm('永久删除物品及历史？')) deleteItem(parseInt(btn.dataset.id)); });
+        }
+    }
+
+    function jumpToTransaction(itemId, type) {
+        if (!isAuthorized) { alert('请先解锁编辑'); return; }
+        document.getElementById('selectedItemId').value = itemId;
+        if (type === 'in') document.getElementById('transType').value = 'in';
+        else if (type === 'out') document.getElementById('transType').value = 'out';
+        else document.getElementById('transType').value = 'modify';
+        document.getElementById('quantityNum').value = 1;
+        activateTab('transactionTab');
+    }
+
+    // 库房卡片渲染（独立跳转，无叠加）
+    function renderWarehouseList() {
+        const container = document.getElementById('warehouseList');
+        if (!warehouses.length) { container.innerHTML = '<div style="padding:20px;text-align:center;">暂无库房，请添加</div>'; return; }
+        container.innerHTML = warehouses.map(wh => `
+            <div class="warehouse-card" data-wh-id="${wh.id}">
+                <h3>🏢 ${escapeHtml(wh.name)}</h3>
+                <div style="margin:8px 0;">📍 ${escapeHtml(wh.location || '未设置')}</div>
+                <div>📦 物品数量: ${items.filter(i=>i.warehouseId===wh.id).length}</div>
+                <div class="warehouse-actions" style="margin-top:14px; display:flex; gap:10px; justify-content:flex-end;" onclick="event.stopPropagation()">
+                    <button class="btn btn-outline btn-sm edit-wh" data-id="${wh.id}" ${!isAuthorized ? 'disabled' : ''}>编辑</button>
+                    <button class="btn btn-danger btn-sm delete-wh" data-id="${wh.id}" ${!isAuthorized ? 'disabled' : ''}>删除</button>
+                </div>
+            </div>
+        `).join('');
+        document.querySelectorAll('.warehouse-card').forEach(card => {
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('.edit-wh') || e.target.closest('.delete-wh')) return;
+                const whId = parseInt(card.dataset.whId);
+                forcedWarehouseFilter = whId;
+                globalItemSearchKeyword = '';
+                highlightItemId = null;
+                document.getElementById('globalItemSearchInput').value = '';
+                const filterSelect = document.getElementById('filterWarehouseSelect');
+                if (filterSelect) filterSelect.value = whId.toString();
+                activateTab('itemTab');
+                renderItemsInItemTab();
+            });
+        });
+        if (isAuthorized) {
+            document.querySelectorAll('.edit-wh').forEach(btn => btn.onclick = (e) => { e.stopPropagation(); editWarehouse(parseInt(btn.dataset.id)); });
+            document.querySelectorAll('.delete-wh').forEach(btn => btn.onclick = (e) => { e.stopPropagation(); deleteWarehouse(parseInt(btn.dataset.id)); });
+        }
+    }
+
+    function renderWarehouseSelects() {
+        const itemWh = document.getElementById('itemWarehouseId');
+        const filter = document.getElementById('filterWarehouseSelect');
+        if (itemWh) itemWh.innerHTML = warehouses.map(w => `<option value="${w.id}">${escapeHtml(w.name)}</option>`).join('');
+        if (filter) {
+            let opts = '<option value="all">📌 全部库房</option>';
+            warehouses.forEach(w => { opts += `<option value="${w.id}">🏠 ${escapeHtml(w.name)}</option>`; });
+            filter.innerHTML = opts;
+            filter.onchange = () => { forcedWarehouseFilter = null; globalItemSearchKeyword = ''; highlightItemId = null; renderItemsInItemTab(); };
+        }
+    }
+
+    function renderItemSelectForTransaction() {
+        const select = document.getElementById('selectedItemId');
+        if (select) {
+            select.innerHTML = items.map(i => `<option value="${i.id}">[${warehouses.find(w=>w.id===i.warehouseId)?.name||'?'}] ${escapeHtml(i.name)} (库存:${i.stock})</option>`).join('');
+            if (!isAuthorized) select.disabled = true; else select.disabled = false;
+        }
+    }
+
+    function renderHistoryTable() {
+        const tbody = document.getElementById('historyBody');
+        if (!logs.length) { tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;">暂无记录</td></tr>'; return; }
+        const sorted = [...logs].sort((a,b)=>new Date(b.time)-new Date(a.time));
+        tbody.innerHTML = sorted.map(log => `<tr>
+            <td>${formatLocalDateTime(log.time)}</td>
+            <td>${escapeHtml(log.warehouseName||'-')}</td>
+            <td>${escapeHtml(log.itemName)}</td>
+            <td>${log.type}</td>
+            <td>${log.delta>0?'+'+log.delta:log.delta}</td>
+            <td>${log.newStock}</td>
+            <td>${escapeHtml(log.operator)}</td>
+            <td>${escapeHtml(log.transactor||'-')}</td>
+            <td>${escapeHtml(log.reason||'-')}</td>
+        </tr>`).join('');
+    }
+
+    function exportHistoryCSV() {
+        if (!logs.length) { alert("无历史记录"); return; }
+        const headers = ['时间','库房','物品名称','操作类型','数量变动','变动后库存','操作人','出入库人','原因'];
+        const rows = logs.map(l => [formatLocalDateTime(l.time), l.warehouseName||'', l.itemName, l.type, l.delta, l.newStock, l.operator, l.transactor||'', l.reason||'']);
+        const csv = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob(["\uFEFF"+csv], {type:'text/csv'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `历史记录_${new Date().toISOString().slice(0,19)}.csv`; a.click(); URL.revokeObjectURL(a.href);
+    }
+
+    function exportItemsCSV() {
+        if (!items.length) { alert("无物品"); return; }
+        const headers = ['ID','物品名称','库房','库存','最后修改时间','修改人'];
+        const rows = items.map(i => {
+            const wh = warehouses.find(w=>w.id===i.warehouseId);
+            return [i.id, i.name, wh?wh.name:'未知', i.stock, formatLocalDateTime(i.lastModified), i.lastModifiedBy||''];
+        });
+        const csv = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+        const blob = new Blob(["\uFEFF"+csv], {type:'text/csv'});
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `物品清单_${new Date().toISOString().slice(0,19)}.csv`; a.click(); URL.revokeObjectURL(a.href);
+    }
+
+    // 基础业务
+    function addWarehouse() { if(!isAuthorized) return; const name = document.getElementById('warehouseName').value.trim(); if(!name) return alert('请输入库房名称'); const loc = document.getElementById('warehouseLocation').value.trim(); warehouses.push({ id: nextWarehouseId++, name, location: loc }); saveAll(); renderAll(); document.getElementById('warehouseName').value=''; document.getElementById('warehouseLocation').value=''; alert(`✅ 库房 ${name} 添加成功`); }
+    function editWarehouse(id) { const w = warehouses.find(w=>w.id===id); if(!w) return; const nn = prompt("库房名称", w.name); if(nn?.trim()) w.name = nn.trim(); const nl = prompt("位置", w.location||""); if(nl!==null) w.location = nl; saveAll(); renderAll(); }
+    function deleteWarehouse(id) { if(!isAuthorized) return; if(items.some(i=>i.warehouseId===id)) return alert("请先清空库房内物品"); warehouses = warehouses.filter(w=>w.id!==id); if(forcedWarehouseFilter === id) forcedWarehouseFilter = null; saveAll(); renderAll(); }
+    function addItem() { if(!isAuthorized) return; const name = document.getElementById('itemName').value.trim(); const whId = parseInt(document.getElementById('itemWarehouseId').value); let stock = parseInt(document.getElementById('itemStock').value)||0; if(!name) return alert("物品名必填"); const now = new Date().toISOString(); const newItem = { id: nextItemId++, name, warehouseId: whId, stock, lastModified: now, lastModifiedBy: '系统添加' }; items.push(newItem); const whName = warehouses.find(w=>w.id===whId).name; if(stock!==0) logs.push({ id: nextLogId++, itemId: newItem.id, itemName: name, warehouseId: whId, warehouseName: whName, type: '入库', delta: stock, newStock: stock, operator: '系统', transactor: '初始化', reason: '初始库存', time: now }); saveAll(); renderAll(); document.getElementById('itemName').value=''; document.getElementById('itemStock').value='0'; alert(`物品 ${name} 添加成功`); }
+    function executeTransaction() { if(!isAuthorized) return; const itemId = parseInt(document.getElementById('selectedItemId').value); const type = document.getElementById('transType').value; let qty = parseInt(document.getElementById('quantityNum').value); const operator = document.getElementById('operatorName').value.trim(); if(!itemId||!operator) return alert("请选择物品并填写操作人"); const idx = items.findIndex(i=>i.id===itemId); if(idx===-1) return; const item = items[idx]; const wh = warehouses.find(w=>w.id===item.warehouseId); let old=item.stock, newStock=old, delta=0, typeText=''; if(type==='in') { if(qty<=0) return; delta=qty; newStock=old+delta; typeText='入库'; } else if(type==='out') { if(qty<=0||old<qty) return alert('库存不足'); delta=-qty; newStock=old+delta; typeText='出库'; } else { if(qty<0) return; delta=qty-old; newStock=qty; typeText='手动修改'; } const finalTime = document.getElementById('operationTime').value ? new Date(document.getElementById('operationTime').value).toISOString() : new Date().toISOString(); items[idx].stock=newStock; items[idx].lastModified=finalTime; items[idx].lastModifiedBy=operator; logs.push({ id: nextLogId++, itemId:item.id, itemName:item.name, warehouseId:item.warehouseId, warehouseName:wh.name, type:typeText, delta, newStock, operator, transactor:document.getElementById('transactorName').value.trim(), reason:document.getElementById('reasonText').value.trim()||'操作', time:finalTime }); saveAll(); renderAll(); alert(`操作完成！${item.name} 新库存: ${newStock}`); document.getElementById('operatorName').value=''; document.getElementById('transactorName').value=''; document.getElementById('reasonText').value=''; }
+    function deleteItem(itemId) { if(!isAuthorized) return; items=items.filter(i=>i.id!==itemId); logs=logs.filter(l=>l.itemId!==itemId); if(highlightItemId===itemId) highlightItemId=null; saveAll(); renderAll(); alert('物品已删除'); }
+    function unlock() { if(isAuthorized) { if(confirm('切换浏览模式？')){ isAuthorized=false; renderAll(); } return; } const pwd=prompt('密码：'); if(pwd===PASSWORD){ isAuthorized=true; renderAll(); alert('解锁成功'); } else if(pwd!==null) alert('密码错误'); }
+    function changePassword() { const old=prompt('当前密码'); if(old!==PASSWORD) return; const np=prompt('新密码'); if(!np) return; const cp=prompt('确认'); if(np!==cp) return; PASSWORD=np; localStorage.setItem('warehouse_password',PASSWORD); alert('密码已更新'); if(isAuthorized){ isAuthorized=false; renderAll(); alert('请重新解锁'); } }
+    function escapeHtml(str){ if(!str) return ''; return str.replace(/[&<>]/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+    function activateTab(tabId) { document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active')); document.getElementById(tabId).classList.add('active'); document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active')); document.querySelector(`.tab-btn[data-tab="${tabId}"]`).classList.add('active'); if(tabId === 'itemTab') renderItemsInItemTab(); }
+    function updateUIPermission() { const badge=document.getElementById('modeBadge'); if(isAuthorized){ badge.className='mode-badge edit'; badge.innerHTML='✏️ 编辑模式' } else { badge.className='mode-badge readonly'; badge.innerHTML='🔒 浏览模式' } const allInputs = document.querySelectorAll('input, select, textarea, button:not(#unlockBtn):not(#changePwdBtn)'); allInputs.forEach(el=>{ if(isAuthorized) el.removeAttribute('disabled'); else el.setAttribute('disabled','disabled'); }); document.getElementById('unlockBtn').disabled=false; document.getElementById('changePwdBtn').disabled=false; renderItemSelectForTransaction(); renderWarehouseList(); renderItemsInItemTab(); }
+    function renderAll() { renderWarehouseList(); renderWarehouseSelects(); renderItemsInItemTab(); renderItemSelectForTransaction(); renderHistoryTable(); updateUIPermission(); }
+
+    // 事件绑定
+    document.getElementById('addWarehouseBtn').onclick = addWarehouse;
+    document.getElementById('resetWarehouseBtn').onclick = () => { document.getElementById('warehouseName').value=''; document.getElementById('warehouseLocation').value=''; };
+    document.getElementById('addItemBtn').onclick = addItem;
+    document.getElementById('resetFormBtn').onclick = () => { document.getElementById('itemName').value=''; document.getElementById('itemStock').value='0'; };
+    document.getElementById('executeBtn').onclick = executeTransaction;
+    document.getElementById('unlockBtn').onclick = unlock;
+    document.getElementById('changePwdBtn').onclick = changePassword;
+    document.getElementById('globalQuickSearchBtn').onclick = globalSearchAndJump;
+    document.getElementById('clearSearchHighlightBtn').onclick = () => { highlightItemId = null; renderItemsInItemTab(); document.getElementById('searchResultTip').style.display='none'; };
+    document.getElementById('globalSearchBtn').onclick = () => { globalItemSearchKeyword = document.getElementById('globalItemSearchInput').value; forcedWarehouseFilter = null; highlightItemId = null; renderItemsInItemTab(); };
+    document.getElementById('globalResetSearchBtn').onclick = () => { globalItemSearchKeyword = ''; forcedWarehouseFilter = null; highlightItemId = null; document.getElementById('globalItemSearchInput').value = ''; renderItemsInItemTab(); };
+    document.getElementById('exportHistoryBtn').onclick = exportHistoryCSV;
+    document.getElementById('exportItemsBtn').onclick = exportItemsCSV;
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.onclick = () => activateTab(btn.dataset.tab));
+    loadData();
+</script>
+</body>
+</html>
